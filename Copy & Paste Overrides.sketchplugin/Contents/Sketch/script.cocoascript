@@ -1,0 +1,66 @@
+var sketch = require('sketch/dom');
+var Settings = require('sketch/settings');
+var document = sketch.Document.getSelectedDocument();
+var selection = document.selectedLayers;
+var SymbolInstance = require('sketch/dom').SymbolInstance;
+var symbolOverrides = selection.layers[0].overrides;
+var savedOverrides = {};
+
+var copyOverrides = function(context) {
+
+	for (i = 0; i < symbolOverrides.length; i++) {
+		//log(symbolOverrides[i]);
+		var rawId = symbolOverrides[i]['id'];
+		rawId = rawId.split("_");
+		var cleanId = rawId[0];
+		var layerName = context.document.documentData().layerWithID(cleanId).name();
+		var layerProperty = symbolOverrides[i]['property'];
+		var layerValue = symbolOverrides[i]['value'];
+		if(layerProperty == 'image'){
+			//var layerValue = layerValue.nsdata.toString();
+			var layerValue = symbolOverrides[i]['id'];
+			log(layerValue);
+		}
+		savedOverrides[layerName] = layerValue;
+	}
+
+	Settings.setSettingForKey('savedOverrides', savedOverrides);
+
+	//log(savedOverrides);
+
+};
+
+var pasteOverrides = function(context) {
+
+	var overrideOptions = [];
+	savedOverrides = Settings.settingForKey('savedOverrides');
+
+	log(savedOverrides);
+
+	 for (i = 0; i < symbolOverrides.length; i++) {
+	   //log(symbolOverrides[i]);
+	   var rawId = symbolOverrides[i]['id'];
+	   rawId = rawId.split("_");
+	   var cleanId = rawId[0];
+	   var layerName = context.document.documentData().layerWithID(cleanId).name();
+	   overrideOptions.push(layerName);
+ 	}
+
+	//overrideOptions = overrideOptions.reverse();
+
+	for (i = 0; i < overrideOptions.length; i++) {
+		var key = overrideOptions[i];
+  	var newOverrideValue = savedOverrides[key];
+		//log(overrideOptions[i] + " = " + newOverrideValue);
+		// if(typeof newOverrideValue === 'object'){
+		// 	newOverrideValue = newOverrideValue[1];
+		// }
+		if(newOverrideValue !== undefined){
+			symbolOverrides[i].value = newOverrideValue;
+		}
+	}
+
+	//log(savedOverrides);
+	//log(overrideOptions);
+
+};

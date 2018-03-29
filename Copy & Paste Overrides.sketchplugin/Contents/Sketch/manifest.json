@@ -1,0 +1,33 @@
+{
+  "author" : "",
+  "commands" : [
+    {
+      "script" : "script.cocoascript",
+      "name" : "Copy Overrides",
+      "handlers" : {
+        "run" : "copyOverrides"
+      },
+      "identifier" : "copyoverrides"
+    },
+		{
+      "script" : "script.cocoascript",
+      "name" : "Paste Overrides",
+      "handlers" : {
+        "run" : "pasteOverrides"
+      },
+      "identifier" : "pasteoverrides"
+    }
+  ],
+  "menu" : {
+    "title" : "Copy & Paste Overrides",
+    "items" : [
+      "copyoverrides",
+			"pasteoverrides"
+    ]
+  },
+  "identifier" : "com.example.sketch.51621b59-cefd-4cb1-8828-045eadd397dc",
+  "version" : "1.0",
+  "description" : "",
+  "authorEmail" : "",
+  "name" : "Copy & Paste Overrides"
+}
