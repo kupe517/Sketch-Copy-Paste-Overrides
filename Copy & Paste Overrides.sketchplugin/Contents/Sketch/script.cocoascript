@@ -3,16 +3,25 @@ var Settings = require('sketch/settings');
 var document = sketch.Document.getSelectedDocument();
 var selection = document.selectedLayers.layers[0];
 var SymbolInstance = require('sketch/dom').SymbolInstance;
-var symbolOverrides = selection.overrides;
-var symbolId = selection.id;
+var symbolId = document.selectedLayers.layers[0]['id'];
 var savedOverrides = {};
 
-var copyOverrides = function(context) {
+var copyOverrides = function(context){
+	Settings.setSettingForKey('symbolId', symbolId);
+}
 
-	log(symbolOverrides);
+var pasteOverrides = function(context){
+	var rId = Settings.settingForKey('symbolId');
+	getOverrides(context, rId);
+	setOverrides(context);
+}
+
+var getOverrides = function(context, rId) {
+
+	var rLayer = document.getLayerWithID(rId);
+	var symbolOverrides = rLayer.overrides;
 
 	for (i = 0; i < symbolOverrides.length; i++) {
-		//log(symbolOverrides[i]);
 		var rawId = symbolOverrides[i]['id'];
 		rawId = rawId.split("_");
 		var cleanId = rawId[0];
@@ -20,28 +29,20 @@ var copyOverrides = function(context) {
 		var layerProperty = symbolOverrides[i]['property'];
 		var layerValue = symbolOverrides[i]['value'];
 		if(layerProperty == 'image'){
-			//var layerValue = layerValue.nsdata.toString();
-			var layerValue = symbolOverrides[i]['id'];
-			log(layerValue);
+			var layerValue = layerValue.nsimage;
 		}
 		savedOverrides[layerName] = layerValue;
 	}
 
-	Settings.setSettingForKey('savedOverrides', savedOverrides);
-
-	//log(savedOverrides);
-
 };
 
-var pasteOverrides = function(context) {
+var setOverrides = function(context) {
 
 	var overrideOptions = [];
-	savedOverrides = Settings.settingForKey('savedOverrides');
 
-	log(savedOverrides);
+	var symbolOverrides = selection.overrides;
 
 	 for (i = 0; i < symbolOverrides.length; i++) {
-	   //log(symbolOverrides[i]);
 	   var rawId = symbolOverrides[i]['id'];
 	   rawId = rawId.split("_");
 	   var cleanId = rawId[0];
@@ -49,21 +50,19 @@ var pasteOverrides = function(context) {
 	   overrideOptions.push(layerName);
  	}
 
-	//overrideOptions = overrideOptions.reverse();
-
 	for (i = 0; i < overrideOptions.length; i++) {
 		var key = overrideOptions[i];
   	var newOverrideValue = savedOverrides[key];
-		//log(overrideOptions[i] + " = " + newOverrideValue);
-		// if(typeof newOverrideValue === 'object'){
-		// 	newOverrideValue = newOverrideValue[1];
-		// }
-		if(newOverrideValue !== undefined){
+		var layerProperty = symbolOverrides[i]['property'];
+		if(layerProperty == 'image'){
+			var rawId = symbolOverrides[i]['id'];
+ 	    rawId = rawId.split("_");
+ 	    var cleanId = rawId[0];
+			var imageLayer = document.getLayerWithID(cleanId);
+			imageLayer.sketchObject.style().fills().firstObject().setImage(MSImageData.alloc().initWithImage(newOverrideValue));
+		}else if(newOverrideValue !== undefined){
 			symbolOverrides[i].value = newOverrideValue;
 		}
 	}
-
-	//log(savedOverrides);
-	//log(overrideOptions);
 
 };
