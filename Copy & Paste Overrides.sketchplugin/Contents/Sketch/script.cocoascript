@@ -71,10 +71,10 @@ var setOverrides = function(context) {
 
  		if(isNested == true){
  				rawId = symbolOverrides[i]['path'];
- 				log('rawId: ' + rawId);
+ 				//log('rawId: ' + rawId);
  				rawId = rawId.split('/');
  				layerId = rawId[1];
- 				log('layerId: ' + layerId)
+ 				//log('layerId: ' + layerId)
  				isNested == false;
  		}
 
@@ -82,26 +82,45 @@ var setOverrides = function(context) {
  			isNested = true;
  		}
 
-		if(layerProperty !== 'symbolID'){ // Nested Symbols
-			log('layerId: ' + layerId);
+		if(layerProperty !== 'symbolID'){
+			//log('layerId: ' + layerId);
 			var layerName = context.document.documentData().layerWithID(layerId).name();
 			overrideOptions.push(layerName);
  		}
 
  	}
 
+	log('overrides l93: ' + overrideOptions);
+	log(symbolOverrides);
+
+	isNested = false;
+
 	for (i = 0; i < overrideOptions.length; i++) {
+		var rawId;
 		var key = overrideOptions[i];
   	var newOverrideValue = savedOverrides[key];
 		var layerProperty = symbolOverrides[i]['property'];
-		log(layerProperty);
-		if(layerProperty == 'image'){
+		log('property l98: ' + key + ' = ' + symbolOverrides[i]['value']);
+
+		if(layerProperty == 'symbolID'){ // Nested Symbols
+			isNested = true;
+		}
+
+		if(layerProperty == 'image'){ // Images
  	    var layerId = symbolOverrides[i]['path'];
 			var imageLayer = document.getLayerWithID(layerId);
 			imageLayer.sketchObject.style().fills().firstObject().setImage(MSImageData.alloc().initWithImage(newOverrideValue));
-		}else if(newOverrideValue !== undefined){
-			symbolOverrides[i].value = newOverrideValue;
+		}else if(isNested == true){
+		 				rawId = symbolOverrides[i]['path'];
+		 				rawId = rawId.split('/');
+		 				layerId = rawId[1];
+		 				isNested == false;
+		}else if(newOverrideValue !== undefined || layerProperty !== 'symbolID'){ // Ignore additional layers we do not have overrids for
+			//log(symbolOverrides[i]);
+			//log(symbolOverrides[i].value + ' = ' + newOverrideValue);
+			symbolOverrides[i]['value'] = newOverrideValue;
 		}
+
 	}
 
 };
