@@ -20,40 +20,31 @@ var getOverrides = function(context, rId) {
 
 	var rLayer = document.getLayerWithID(rId);
 	var symbolOverrides = rLayer.overrides;
-	log(symbolOverrides);
+	//log(symbolOverrides);
 	var isNested = false;
 
 	for (i = 0; i < symbolOverrides.length; i++) {
 		var layerProperty = symbolOverrides[i]['property'];
 		var layerValue = symbolOverrides[i]['value'];
 		var layerId = symbolOverrides[i]['path'];
-		var rawId;
 
-		if(isNested == true){
-				rawId = symbolOverrides[i]['path'];
-				log('rawId: ' + rawId);
-				rawId = rawId.split('/');
-				layerId = rawId[1];
-				log('layerId: ' + layerId);
-				isNested == false;
-		}
-
-		if(layerProperty == 'symbolID'){ // Nested Symbols
-			isNested = true;
+		if(layerId.length > 36){
+			layerId = layerId.split('/');
+			layerId = layerId[1];
 		}
 
 		if(layerProperty == 'image'){ // Image Overrides
 			var layerValue = layerValue.nsimage;
 			var layerName = context.document.documentData().layerWithID(layerId).name();
 			savedOverrides[layerName] = layerValue;
-		}else{
-			log(layerId);
+		}else if(layerProperty !== 'symbolID'){
+			//log(layerId);
 			var layerName = context.document.documentData().layerWithID(layerId).name();
 			savedOverrides[layerName] = layerValue;
 		}
 	}
 
-	log(savedOverrides);
+	//log(savedOverrides);
 
 };
 
@@ -62,25 +53,16 @@ var setOverrides = function(context) {
 	var overrideOptions = [];
 
 	var symbolOverrides = selection.overrides;
-	var isNested = false;
 
 	 for (i = 0; i < symbolOverrides.length; i++) {
 	   var layerId = symbolOverrides[i]['path'];
-		 var rawId;
+
+		 if(layerId.length > 36){
+ 			layerId = layerId.split('/');
+ 			layerId = layerId[1];
+ 		}
+
 		 var layerProperty = symbolOverrides[i]['property'];
-
- 		if(isNested == true){
- 				rawId = symbolOverrides[i]['path'];
- 				//log('rawId: ' + rawId);
- 				rawId = rawId.split('/');
- 				layerId = rawId[1];
- 				//log('layerId: ' + layerId)
- 				isNested == false;
- 		}
-
- 		if(layerProperty == 'symbolID'){ // Nested Symbols
- 			isNested = true;
- 		}
 
 		if(layerProperty !== 'symbolID'){
 			//log('layerId: ' + layerId);
@@ -102,22 +84,13 @@ var setOverrides = function(context) {
 		var layerProperty = symbolOverrides[i]['property'];
 		log('property l98: ' + key + ' = ' + symbolOverrides[i]['value']);
 
-		if(layerProperty == 'symbolID'){ // Nested Symbols
-			isNested = true;
-		}
-
 		if(layerProperty == 'image'){ // Images
  	    var layerId = symbolOverrides[i]['path'];
 			var imageLayer = document.getLayerWithID(layerId);
 			imageLayer.sketchObject.style().fills().firstObject().setImage(MSImageData.alloc().initWithImage(newOverrideValue));
-		}else if(isNested == true){
-		 				rawId = symbolOverrides[i]['path'];
-		 				rawId = rawId.split('/');
-		 				layerId = rawId[1];
-		 				isNested == false;
 		}else if(newOverrideValue !== undefined || layerProperty !== 'symbolID'){ // Ignore additional layers we do not have overrids for
 			//log(symbolOverrides[i]);
-			//log(symbolOverrides[i].value + ' = ' + newOverrideValue);
+			log(symbolOverrides[i].value + ' = ' + newOverrideValue);
 			symbolOverrides[i]['value'] = newOverrideValue;
 		}
 
