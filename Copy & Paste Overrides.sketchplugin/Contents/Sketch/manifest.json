@@ -4,6 +4,7 @@
     {
       "script" : "script.cocoascript",
       "name" : "Copy Overrides",
+      "shortcut": "ctrl shift c",
       "handlers" : {
         "run" : "copyOverrides"
       },
@@ -12,6 +13,7 @@
 		{
       "script" : "script.cocoascript",
       "name" : "Paste Overrides",
+      "shortcut": "ctrl shift v",
       "handlers" : {
         "run" : "pasteOverrides"
       },
@@ -26,7 +28,7 @@
     ]
   },
   "identifier" : "com.example.sketch.51621b59-cefd-4cb1-8828-045eadd397dc",
-  "version" : "1.0",
+  "version" : "1.1",
   "description" : "",
   "authorEmail" : "",
   "name" : "Copy & Paste Overrides"
