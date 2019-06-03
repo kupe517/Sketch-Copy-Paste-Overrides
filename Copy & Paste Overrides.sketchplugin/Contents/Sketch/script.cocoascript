@@ -8,77 +8,23 @@ var savedOverrides = {};
 
 var copyOverrides = function(context){
 	Settings.setSettingForKey('symbolId', symbolId);
+		context.api().message("Overrides copied");
 }
 
 var pasteOverrides = function(context){
 	var rId = Settings.settingForKey('symbolId');
-	getOverrides(context, rId);
-	setOverrides(context);
+	var overrides = getOverrides(context, rId);
+	setOverrides(selection,overrides);
+	context.api().message("Overrides Pasted");
+
 }
 
 var getOverrides = function(context, rId) {
-
 	var rLayer = document.getLayerWithID(rId);
-	var symbolOverrides = rLayer.overrides;
-	var isNested = false;
-
-	for (i = 0; i < symbolOverrides.length; i++) {
-		var layerProperty = symbolOverrides[i]['property'];
-		var layerValue = symbolOverrides[i]['value'];
-		var layerId = symbolOverrides[i]['path'];
-
-		if(layerId.length > 36){ // Nested symbols will return two ID's so we split it
-			layerId = layerId.split('/');
-			layerId = layerId[1];
-		}
-
-		if(layerProperty == 'image'){ // Image Overrides
-			var layerValue = layerValue.nsimage;
-			var layerName = context.document.documentData().layerWithID(layerId).name();
-			savedOverrides[layerName] = layerValue;
-		}else if(layerProperty !== 'symbolID'){
-			var layerName = context.document.documentData().layerWithID(layerId).name();
-			savedOverrides[layerName] = layerValue;
-		}
-	}
-
+	var symbolOverrides = rLayer.sketchObject.overrides();
+    return symbolOverrides
 };
 
-var setOverrides = function(context) {
-
-	var overrideOptions = [];
-
-	var symbolOverrides = selection.overrides;
-
-	 for (i = 0; i < symbolOverrides.length; i++) {
-	   var layerId = symbolOverrides[i]['path'];
-
-		 if(layerId.length > 36){
- 			layerId = layerId.split('/');
- 			layerId = layerId[1];
- 		}
-
-		 var layerProperty = symbolOverrides[i]['property'];
-
-		 var layerName = context.document.documentData().layerWithID(layerId).name();
-		 overrideOptions.push(layerName);
-
- 	}
-
-	for (i = 0; i < overrideOptions.length; i++) {
-		var rawId;
-		var key = overrideOptions[i];
-  	var newOverrideValue = savedOverrides[key];
-		var layerProperty = symbolOverrides[i]['property'];
-
-		if(layerProperty == 'image'){ // Images
- 	    var layerId = symbolOverrides[i]['path'];
-			var imageLayer = document.getLayerWithID(layerId);
-			imageLayer.sketchObject.style().fills().firstObject().setImage(MSImageData.alloc().initWithImage(newOverrideValue));
-		}else if(newOverrideValue !== undefined || layerProperty !== 'symbolID'){ // Ignore additional layers we do not have overrids for
-			symbolOverrides[i]['value'] = newOverrideValue;
-		}
-
-	}
-
-};
+var setOverrides = function(selection,overrides) {
+	selection.sketchObject.overrides = overrides
+}
